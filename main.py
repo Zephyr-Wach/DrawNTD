@@ -1,4 +1,5 @@
 import math
+import os
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -7,13 +8,19 @@ import networkx as nx
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
+# 设置工作目录为脚本所在目录
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # 定义并加载中文字体
 font_path = './Data/txt.ttf'
 prop = FontProperties(fname=font_path)
 
+# 在绘图之前设置图形大小
+fig = plt.figure(figsize=(13, 7))  # 适当增大图形尺寸
+
 # 读取数据集
-data_set_path = './Data/DataSet.xlsx' #数据通讯记录
-device_list_path = './Data/deviceList.xlsx' #设备列表
+data_set_path = './Data/DataSet.xlsx'
+device_list_path = './Data/deviceList.xlsx'
 data = pd.read_excel(data_set_path, index_col=0)
 device_info = pd.read_excel(device_list_path)
 
@@ -113,24 +120,27 @@ nx.draw_networkx_nodes(G, pos, nodelist=G.nodes(), node_color=node_colors, node_
 nx.draw_networkx_edges(G, pos, width=0.5, alpha=0.5)
 nx.draw_networkx_labels(G, pos, font_size=6)
 
-# 添加图例
+# 添加图例，调整图例的位置和尺寸
 legend_handles = [mpatches.Patch(color=color, label=device) for device, color in color_map.items()]
-plt.legend(
-    handles=legend_handles,
-    loc='lower left',
-    bbox_to_anchor=(0, 0),
-    prop=prop,
-    fontsize=6,
-    ncol=2,
-    handlelength=1,
-    handletextpad=0.5,
-    borderaxespad=0.5,
-    scatterpoints=1
-)
-# 在图例处理中，"未知"也被包含进去
 if unknown_label in color_map.values():
     legend_handles.append(mpatches.Patch(color=default_color, label=unknown_label))
 
+# 将图例放置在一个相对位置上，使其看起来像一个独立的小图
+plt.legend(
+    handles=legend_handles,
+    loc='upper left',
+    bbox_to_anchor=(-0.1, 1),  # 将图例放置在主图的左边
+    prop=prop,
+    fontsize=6,  # 可以调整字体大小以适应图例区域
+    ncol=1,
+    frameon=False,  # 移除图例的边框
+    handlelength=1,
+    handletextpad=0.5,
+    borderaxespad=0,
+    scatterpoints=1
+)
+
 # 显示图形
 plt.axis('off')
+fig.savefig('NTD.png', dpi=200, bbox_inches='tight')
 plt.show()
